@@ -7,7 +7,7 @@ const createStudent = async (req, res) => {
     await student.save();
     res.status(201).json(student);
   } catch (error) {
-    res.status(400).json({ error: err.message });
+    res.status(400).json({ error: error.message });
   }
 };
 
@@ -17,7 +17,7 @@ const getAllStudents = async (req, res) => {
     const students = await Student.find();
     res.status(200).json(students);
   } catch (error) {
-    res.status(400).json({ error: err.message });
+    res.status(400).json({ error: error.message });
   }
 };
 
@@ -30,7 +30,7 @@ const getStudentById = async (req, res) => {
     }
     res.status(200).json(student);
   } catch (error) {
-    res.status(400).json({ error: err.message });
+    res.status(400).json({ error: error.message });
   }
 };
 
@@ -46,7 +46,7 @@ const updateStudent = async (req, res) => {
     }
     res.status(200).json(student);
   } catch (error) {
-    res.status(400).json({ error: err.message });
+    res.status(400).json({ error: error.message });
   }
 };
 
@@ -59,7 +59,7 @@ const deleteStudent = async (req, res) => {
     }
     res.status(204).json();
   } catch (error) {
-    res.status(400).json({ error: err.message });
+    res.status(400).json({ error: error.message });
   }
 };
 

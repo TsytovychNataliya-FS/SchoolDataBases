@@ -7,7 +7,7 @@ const createTeacher = async (req, res) => {
     await teacher.save();
     res.status(201).json(teacher);
   } catch (error) {
-    res.status(400).json({ error: err.message });
+    res.status(400).json({ error: error.message });
   }
 };
 
@@ -17,7 +17,7 @@ const getAllTeachers = async (req, res) => {
     const teachers = await Teacher.find();
     res.status(200).json(teachers);
   } catch (error) {
-    res.status(400).json({ error: err.message });
+    res.status(400).json({ error: error.message });
   }
 };
 
@@ -30,7 +30,7 @@ const getTeacherById = async (req, res) => {
     }
     res.status(200).json(teacher);
   } catch (error) {
-    res.status(400).json({ error: err.message });
+    res.status(400).json({ error: error.message });
   }
 };
 
@@ -46,7 +46,7 @@ const updateTeacher = async (req, res) => {
     }
     res.status(200).json(teacher);
   } catch (error) {
-    res.status(400).json({ error: err.message });
+    res.status(400).json({ error: error.message });
   }
 };
 
@@ -57,9 +57,9 @@ const deleteTeacher = async (req, res) => {
     if (!teacher) {
       return res.status(404).json({ error: "Teacher not found" });
     }
-    res.status(204).json();
+    res.status(204).send(); // No content, no response body
   } catch (error) {
-    res.status(400).json({ error: err.message });
+    res.status(400).json({ error: "Invalid ID format" }); // Adjust the error message if necessary
   }
 };
 
