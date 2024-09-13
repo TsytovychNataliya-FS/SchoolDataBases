@@ -1,9 +1,15 @@
 const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
 
-const teacherSchema = new mongoose.Schema({
-  name: { type: String, required: true, unique: true }, // Unique constraint
+const teacherSchema = new Schema({
+  name: { type: String, required: true },
   subject: { type: String, required: true },
-  hireDate: { type: Date, default: Date.now },
+  students: [{ type: Schema.Types.ObjectId, ref: "Student" }], // Reference to students
+});
+
+// Virtual field to get the student count
+teacherSchema.virtual("studentCount").get(function () {
+  return this.students.length;
 });
 
 module.exports = mongoose.model("Teacher", teacherSchema);
