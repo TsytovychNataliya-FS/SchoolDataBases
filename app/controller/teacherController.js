@@ -16,7 +16,7 @@ const createTeacher = async (req, res) => {
 // Get all teachers and include student count, query string, and sorting
 const getAllTeachers = async (req, res) => {
   try {
-    const { minStudents, maxStudents, sortBy, subject } = req.query;
+    const { minStudents, maxStudents, sortBy, sortOrder, subject } = req.query;
     const matchCriteria = {};
 
     // Validate and set minStudents
@@ -45,6 +45,9 @@ const getAllTeachers = async (req, res) => {
       matchCriteria.subject = subject; // Match teachers by subject
     }
 
+    // Determine sorting order
+    const sortOrderValue = sortOrder === "desc" ? -1 : 1; // Default to ascending if not specified
+
     const teachers = await Teacher.aggregate([
       {
         $lookup: {
@@ -66,7 +69,7 @@ const getAllTeachers = async (req, res) => {
         $match: matchCriteria, // Match based on the constructed criteria
       },
       {
-        $sort: { [sortBy || "subject"]: 1 }, // Default to sorting by subject if sortBy is not provided
+        $sort: { [sortBy || "subject"]: sortOrderValue }, // Use sortOrderValue for sorting direction
       },
     ]);
 

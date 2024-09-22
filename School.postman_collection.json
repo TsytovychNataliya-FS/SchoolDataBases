@@ -40,7 +40,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"Dan ten\",\n    \"subject\": \"English\",\n    \"hireDate\": \"05/25/2021\"\n\n}",
+							"raw": "\n  {\n\n        \"name\": \"John Kim\",\n        \"subject\": \"Hard Ware\",\n        \"hireDate\": \"1999-05-25T05:00:00.000Z\"\n  }\n\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -68,17 +68,78 @@
 							"listen": "test",
 							"script": {
 								"exec": [
+									"// Test for successful response",
 									"pm.test(\"Status code is 200\", function () {",
 									"    pm.response.to.have.status(200);",
 									"});",
+									"",
+									"// Test to check if the response is an array",
 									"pm.test(\"Response is an array of students/teachers\", function () {",
 									"    const jsonData = pm.response.json();",
 									"    pm.expect(jsonData).to.be.an('array');",
 									"});",
+									"",
+									"// Test to check if the list is not empty",
 									"pm.test(\"List of students/teachers is not empty\", function () {",
 									"    const jsonData = pm.response.json();",
 									"    pm.expect(jsonData.length).to.be.greaterThan(0);",
 									"});",
+									"",
+									"// Test for limited data based on query string",
+									"pm.test(\"Limited data returned based on query string\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData.length).to.be.at.most(5); ",
+									"});",
+									"",
+									"// Test to check if the returned data only includes specific fields",
+									"pm.test(\"Limited data includes only selected fields\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    jsonData.forEach(teacher => {",
+									"        pm.expect(teacher).to.have.all.keys('_id','name', 'subject', 'studentCount','students' ); ",
+									"    });",
+									"});",
+									"",
+									"// Test for pagination (check if the correct number of teacheers)",
+									"pm.test(\"Paginated results check\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    const expectedCount = 5; ",
+									"    pm.expect(jsonData.length).to.equal(expectedCount); ",
+									"});",
+									"",
+									"// Test to check if the correct data is returned after pagination ",
+									"pm.test(\"Pagination returns the expected results\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    const expectedNames = [\"Jhon Westo\", \"Phillip Mate\", \"John Kim\", \"Ben Dan\", \"James Dan\"]; ",
+									"    const returnedNames = jsonData.map(teacher => teacher.name);",
+									"    pm.expect(returnedNames).to.eql(expectedNames); ",
+									"});",
+									"",
+									"// Test for sorting in ascending order",
+									"pm.test(\"Sorted results in ascending order\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    const names = jsonData.map(teacher => teacher.name);",
+									"    const sortedNames = [...names].sort();",
+									"    ",
+									"    pm.expect(names).to.eql(sortedNames); ",
+									"});",
+									"",
+									"// Test for sorting in descending order",
+									"pm.test(\"Sorted results in descending order\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    const names = jsonData.map(teacher => teacher.name);",
+									"    const sortedNames = [...names].sort().reverse();",
+									"    ",
+									"    pm.expect(names).to.eql(sortedNames); ",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
 									""
 								],
 								"type": "text/javascript",
@@ -156,7 +217,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:5001/teachers/66e340312b9d41f187f3da47",
+							"raw": "http://localhost:5001/teachers/66e35ca8fb07b3e21f7614f",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -164,7 +225,7 @@
 							"port": "5001",
 							"path": [
 								"teachers",
-								"66e340312b9d41f187f3da47"
+								"66e35ca8fb07b3e21f7614f"
 							]
 						}
 					},
@@ -215,7 +276,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:5001/teachers/66e340312b9d41f187f3da47",
+							"raw": "http://localhost:5001/teachers/66e35ca8fb07b3e21f7614f5",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -223,7 +284,7 @@
 							"port": "5001",
 							"path": [
 								"teachers",
-								"66e340312b9d41f187f3da47"
+								"66e35ca8fb07b3e21f7614f5"
 							]
 						}
 					},
@@ -231,11 +292,41 @@
 				},
 				{
 					"name": "Delete a Teacher",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test if status code is 204 (No Content) after successful delete",
+									"pm.test(\"Status code is 204 (No Content)\", function () {",
+									"    pm.response.to.have.status(204);",
+									"});",
+									"",
+									"// Test if the response is empty",
+									"pm.test(\"Response is empty\", function () {",
+									"    pm.expect(pm.response.text()).to.eql('');",
+									"});",
+									"",
+									"pm.test(\"Status code is 404 for non-existent ID\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});",
+									"",
+									"pm.test(\"Response contains appropriate error message for non-existent ID\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData.error).to.include('Teacher not found');",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
 					"request": {
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:5001/teachers/66e33fdf2b9d41f187f3da3e",
+							"raw": "http://localhost:5001/teachers/66e3c8c198aeefa8c8c236c1",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -243,7 +334,7 @@
 							"port": "5001",
 							"path": [
 								"teachers",
-								"66e33fdf2b9d41f187f3da3e"
+								"66e3c8c198aeefa8c8c236c1"
 							]
 						}
 					},
@@ -285,7 +376,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"Angel Tsy\",\n    \"age\": \"24\",\n    \"teacher\": \"66e340312b9d41f187f3da47\"\n}",
+							"raw": "{\n    \"name\": \"West Crane\",\n    \"age\": \"25\",\n    \"teacher\":  \"66efb549f23c8750a2f2ba4d\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -388,7 +479,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:5001/students/66e34128c73421e8fac0f306",
+							"raw": "http://localhost:5001/students/66e3403d2b9d41f187f3da4",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -396,7 +487,7 @@
 							"port": "5001",
 							"path": [
 								"students",
-								"66e34128c73421e8fac0f306"
+								"66e3403d2b9d41f187f3da4"
 							]
 						}
 					},
@@ -438,7 +529,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"West James\"\n\n}",
+							"raw": "{\n     \"teacher\": \"66e3cc798d2a899da67e3073\"\n\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -446,7 +537,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:5001/students/66e3403d2b9d41f187f3da49",
+							"raw": "http://localhost:5001/students/66e3d5b74b5c55eb3e76f32d",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -454,7 +545,7 @@
 							"port": "5001",
 							"path": [
 								"students",
-								"66e3403d2b9d41f187f3da49"
+								"66e3d5b74b5c55eb3e76f32d"
 							]
 						}
 					},
@@ -462,11 +553,41 @@
 				},
 				{
 					"name": "Delete a Student",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test if status code is 204 (No Content) after successful delete",
+									"pm.test(\"Status code is 204 (No Content)\", function () {",
+									"    pm.response.to.have.status(204);",
+									"});",
+									"",
+									"// Test if the response is empty",
+									"pm.test(\"Response is empty\", function () {",
+									"    pm.expect(pm.response.text()).to.eql('');",
+									"});",
+									"",
+									"pm.test(\"Status code is 404 for non-existent ID\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});",
+									"",
+									"pm.test(\"Response contains appropriate error message for non-existent ID\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData.error).to.include('Student not found');",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
 					"request": {
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:5001/students/66e340192b9d41f187f3da44",
+							"raw": "http://localhost:5001/students/66e3d5b74b5c55eb3e76f32d",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -474,7 +595,7 @@
 							"port": "5001",
 							"path": [
 								"students",
-								"66e340192b9d41f187f3da44"
+								"66e3d5b74b5c55eb3e76f32d"
 							]
 						}
 					},
