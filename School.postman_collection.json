@@ -1,0 +1,607 @@
+{
+	"info": {
+		"_postman_id": "1e197017-2f5b-4c12-8336-7fbc0ae1f400",
+		"name": "School",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "38109820"
+	},
+	"item": [
+		{
+			"name": "Teachers",
+			"item": [
+				{
+					"name": "Create New Teacher",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201 (Created)\", function() {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"pm.test(\"Response contains newly created student's/teacher's data\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('name');",
+									"    pm.expect(jsonData).to.have.property('subject');",
+									"});",
+									"pm.test(\"Response format is JSON\", function () {",
+									"    pm.response.to.be.json;",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "\n  {\n\n        \"name\": \"John Kim\",\n        \"subject\": \"Hard Ware\",\n        \"hireDate\": \"1999-05-25T05:00:00.000Z\"\n  }\n\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5001/teachers",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5001",
+							"path": [
+								"teachers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "All Teachers",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test for successful response",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"// Test to check if the response is an array",
+									"pm.test(\"Response is an array of students/teachers\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"});",
+									"",
+									"// Test to check if the list is not empty",
+									"pm.test(\"List of students/teachers is not empty\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData.length).to.be.greaterThan(0);",
+									"});",
+									"",
+									"// Test for limited data based on query string",
+									"pm.test(\"Limited data returned based on query string\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData.length).to.be.at.most(5); ",
+									"});",
+									"",
+									"// Test to check if the returned data only includes specific fields",
+									"pm.test(\"Limited data includes only selected fields\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    jsonData.forEach(teacher => {",
+									"        pm.expect(teacher).to.have.all.keys('_id','name', 'subject', 'studentCount','students' ); ",
+									"    });",
+									"});",
+									"",
+									"// Test for pagination (check if the correct number of teacheers)",
+									"pm.test(\"Paginated results check\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    const expectedCount = 5; ",
+									"    pm.expect(jsonData.length).to.equal(expectedCount); ",
+									"});",
+									"",
+									"// Test to check if the correct data is returned after pagination ",
+									"pm.test(\"Pagination returns the expected results\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    const expectedNames = [\"Jhon Westo\", \"Phillip Mate\", \"John Kim\", \"Ben Dan\", \"James Dan\"]; ",
+									"    const returnedNames = jsonData.map(teacher => teacher.name);",
+									"    pm.expect(returnedNames).to.eql(expectedNames); ",
+									"});",
+									"",
+									"// Test for sorting in ascending order",
+									"pm.test(\"Sorted results in ascending order\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    const names = jsonData.map(teacher => teacher.name);",
+									"    const sortedNames = [...names].sort();",
+									"    ",
+									"    pm.expect(names).to.eql(sortedNames); ",
+									"});",
+									"",
+									"// Test for sorting in descending order",
+									"pm.test(\"Sorted results in descending order\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    const names = jsonData.map(teacher => teacher.name);",
+									"    const sortedNames = [...names].sort().reverse();",
+									"    ",
+									"    pm.expect(names).to.eql(sortedNames); ",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5001/teachers",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5001",
+							"path": [
+								"teachers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Teacher by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 400 for invalid ID format\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"pm.test(\"Response contains appropriate error message for invalid ID\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData.error).to.include('Cast to ObjectId failed'); ",
+									"});",
+									"pm.test(\"Status code is 400 for non-existent ID\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"",
+									"pm.test(\"Status code is 200 for valid ID\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response contains required properties\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('name');",
+									"    pm.expect(jsonData).to.have.property('subject');",
+									"    pm.expect(jsonData).to.have.property('hireDate'); // Ensure this property exists",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5001/teachers/66e35ca8fb07b3e21f7614f",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5001",
+							"path": [
+								"teachers",
+								"66e35ca8fb07b3e21f7614f"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Updated the Teacher",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"// In your update request script",
+									"pm.test(\"Capture updated name\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.environment.set(\"updatedName\", jsonData.name); // Capture the updated name",
+									"});",
+									"pm.test(\"Response contains updated fields\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    const expectedName = pm.environment.get(\"updatedName\");",
+									"    pm.expect(jsonData).to.have.property('name').that.equals(expectedName);",
+									"});",
+									"",
+									"",
+									"pm.test(\"Response format is JSON\", function () {",
+									"    pm.response.to.be.json;",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"Name\": \"Genn Name\"\n\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5001/teachers/66e35ca8fb07b3e21f7614f5",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5001",
+							"path": [
+								"teachers",
+								"66e35ca8fb07b3e21f7614f5"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete a Teacher",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test if status code is 204 (No Content) after successful delete",
+									"pm.test(\"Status code is 204 (No Content)\", function () {",
+									"    pm.response.to.have.status(204);",
+									"});",
+									"",
+									"// Test if the response is empty",
+									"pm.test(\"Response is empty\", function () {",
+									"    pm.expect(pm.response.text()).to.eql('');",
+									"});",
+									"",
+									"pm.test(\"Status code is 404 for non-existent ID\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});",
+									"",
+									"pm.test(\"Response contains appropriate error message for non-existent ID\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData.error).to.include('Teacher not found');",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5001/teachers/66e3c8c198aeefa8c8c236c1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5001",
+							"path": [
+								"teachers",
+								"66e3c8c198aeefa8c8c236c1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Students",
+			"item": [
+				{
+					"name": "Create a student",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201 (Created)\", function() {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"pm.test(\"Response contains newly created student's/teacher's data\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('name');",
+									"    pm.expect(jsonData).to.have.property('age');",
+									"});",
+									"pm.test(\"Response format is JSON\", function () {",
+									"    pm.response.to.be.json;",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"West Crane\",\n    \"age\": \"25\",\n    \"teacher\":  \"66efb549f23c8750a2f2ba4d\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5001/students",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5001",
+							"path": [
+								"students"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "All Students",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Response is an array of students/teachers\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"});",
+									"pm.test(\"List of students/teachers is not empty\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData.length).to.be.greaterThan(0);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5001/students",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5001",
+							"path": [
+								"students"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Student by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 400 for invalid ID format\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"pm.test(\"Response contains appropriate error message for invalid ID\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData.error).to.include('Cast to ObjectId failed'); ",
+									"});",
+									"pm.test(\"Status code is 400 for non-existent ID\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"",
+									"pm.test(\"Status code is 200 for valid ID\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response contains required properties\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('name');",
+									"    pm.expect(jsonData).to.have.property('age');",
+									"    pm.expect(jsonData).to.have.property('teacher'); // Ensure this property exists",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5001/students/66e3403d2b9d41f187f3da4",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5001",
+							"path": [
+								"students",
+								"66e3403d2b9d41f187f3da4"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update the Sudent",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"// In your update request script",
+									"pm.test(\"Capture updated name\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.environment.set(\"updatedName\", jsonData.name); // Capture the updated name",
+									"});",
+									"pm.test(\"Response contains updated fields\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    const expectedName = pm.environment.get(\"updatedName\");",
+									"    pm.expect(jsonData).to.have.property('name').that.equals(expectedName);",
+									"});",
+									"",
+									"",
+									"pm.test(\"Response format is JSON\", function () {",
+									"    pm.response.to.be.json;",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n     \"teacher\": \"66e3cc798d2a899da67e3073\"\n\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5001/students/66e3d5b74b5c55eb3e76f32d",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5001",
+							"path": [
+								"students",
+								"66e3d5b74b5c55eb3e76f32d"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete a Student",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test if status code is 204 (No Content) after successful delete",
+									"pm.test(\"Status code is 204 (No Content)\", function () {",
+									"    pm.response.to.have.status(204);",
+									"});",
+									"",
+									"// Test if the response is empty",
+									"pm.test(\"Response is empty\", function () {",
+									"    pm.expect(pm.response.text()).to.eql('');",
+									"});",
+									"",
+									"pm.test(\"Status code is 404 for non-existent ID\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});",
+									"",
+									"pm.test(\"Response contains appropriate error message for non-existent ID\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData.error).to.include('Student not found');",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5001/students/66e3d5b74b5c55eb3e76f32d",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5001",
+							"path": [
+								"students",
+								"66e3d5b74b5c55eb3e76f32d"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
